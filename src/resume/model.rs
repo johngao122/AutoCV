@@ -38,6 +38,7 @@ impl Resume {
         }
     }
 
+    #[allow(unused_mut, clippy::let_and_return)]
     pub fn count_keywords(&self) -> HashMap<String, usize> {
         let mut keywords_count = HashMap::new();
 
@@ -46,6 +47,7 @@ impl Resume {
         keywords_count
     }
 
+    #[allow(unused_variables)]
     pub fn contains_keyword(&self, keyword: &str) -> bool {
         // Think of an algorithm
 
