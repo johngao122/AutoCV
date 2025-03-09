@@ -114,10 +114,10 @@ jobs:
               with:
                   command: build
                   args: --release
-            - uses: actions/upload-artifact@v3
+            - uses: actions/upload-artifact@v4
               with:
-                  name: resume-ats-optimizer-linux
-                  path: target/release/resume-ats-optimizer
+                  name: AutoCV-linux
+                  path: target/release/AutoCV
 
     build-macos:
         name: Build macOS
@@ -134,10 +134,10 @@ jobs:
               with:
                   command: build
                   args: --release
-            - uses: actions/upload-artifact@v3
+            - uses: actions/upload-artifact@v4
               with:
-                  name: resume-ats-optimizer-macos
-                  path: target/release/resume-ats-optimizer
+                  name: AutoCV-macos
+                  path: target/release/AutoCV
 
     build-windows:
         name: Build Windows
@@ -154,7 +154,7 @@ jobs:
               with:
                   command: build
                   args: --release
-            - uses: actions/upload-artifact@v3
+            - uses: actions/upload-artifact@v4
               with:
-                  name: resume-ats-optimizer-windows
-                  path: target/release/resume-ats-optimizer.exe
+                  name: AutoCV-windows
+                  path: target/release/AutoCV.exe
