@@ -2,5 +2,21 @@
 name = "AutoCV"
 version = "0.1.0"
 edition = "2021"
+authors = ["John Gao Jiahao"]
+description = "A tool to optimize resumes for Applicant Tracking Systems"
+
+[lib]
+name = "resume_ats_optimizer"
+path = "src/lib.rs"
+
+[[bin]]
+name = "resume-ats-optimizer"
+path = "src/main.rs"
 
 [dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4.4", features = ["derive"] }
+
+[dev-dependencies]
