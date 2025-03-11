@@ -45,55 +45,78 @@ impl Resume {
         let mut text_content = String::new();
 
         text_content.push_str(&self.profile.summary);
+        text_content.push_str(" ");
         text_content.push_str(&self.profile.title);
+        text_content.push_str(" ");
         text_content.push_str(&self.profile.name);
+        text_content.push_str(" ");
 
         for experience in &self.experiences {
             text_content.push_str(&experience.title);
+            text_content.push_str(" ");
             text_content.push_str(&experience.description);
+            text_content.push_str(" ");
             for achievement in &experience.achievements {
                 text_content.push_str(achievement);
+                text_content.push_str(" ");
             }
             for technology in &experience.technologies {
                 text_content.push_str(technology);
+                text_content.push_str(" ");
             }
         }
 
         for education in &self.education {
             text_content.push_str(&education.degree);
+            text_content.push_str(" ");
             text_content.push_str(&education.field_of_study);
+            text_content.push_str(" ");
             text_content.push_str(&education.description);
+            text_content.push_str(" ");
             for course in &education.courses {
                 text_content.push_str(course);
+                text_content.push_str(" ");
             }
         }
 
         for skill in &self.skills.technical {
             text_content.push_str(&skill.name);
+            text_content.push_str(" ");
         }
 
         for skill in &self.skills.soft {
             text_content.push_str(&skill.name);
+            text_content.push_str(" ");
         }
 
         for skill in &self.skills.languages {
             text_content.push_str(&skill.name);
+            text_content.push_str(" ");
         }
 
         for skill in &self.skills.tools {
             text_content.push_str(&skill.name);
+            text_content.push_str(" ");
         }
 
         for project in &self.projects {
             text_content.push_str(&project.name);
+            text_content.push_str(" ");
             text_content.push_str(&project.description);
+            text_content.push_str(" ");
             for technology in &project.technologies {
                 text_content.push_str(technology);
+                text_content.push_str(" ");
+            }
+        }
+
+        for (k, v) in Self::get_tech_acronyms() {
+            if text_content.to_lowercase().contains(&k.to_lowercase()) {
+                *keywords_count.entry(v.to_lowercase()).or_insert(0) += 1;
             }
         }
 
         let text_content = text_content.to_lowercase();
-
         let re = Regex::new(r"\b[a-zA-Z0-9-]+\b").unwrap();
         for word in re.find_iter(&text_content) {
             let word = word.as_str().to_string();
@@ -246,7 +269,7 @@ impl Resume {
         Self::get_tech_acronyms()
             .iter()
             .find(|(k, _)| k.to_lowercase() == word)
-            .map(|(_, v)| v.to_string())
+            .map(|(_, v)| v.to_string().to_lowercase())
             .unwrap_or(word)
     }
 }
