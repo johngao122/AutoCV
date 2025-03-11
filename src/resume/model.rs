@@ -45,68 +45,68 @@ impl Resume {
         let mut text_content = String::new();
 
         text_content.push_str(&self.profile.summary);
-        text_content.push_str(" ");
+        text_content.push(' ');
         text_content.push_str(&self.profile.title);
-        text_content.push_str(" ");
+        text_content.push(' ');
         text_content.push_str(&self.profile.name);
-        text_content.push_str(" ");
+        text_content.push(' ');
 
         for experience in &self.experiences {
             text_content.push_str(&experience.title);
-            text_content.push_str(" ");
+            text_content.push(' ');
             text_content.push_str(&experience.description);
-            text_content.push_str(" ");
+            text_content.push(' ');
             for achievement in &experience.achievements {
                 text_content.push_str(achievement);
-                text_content.push_str(" ");
+                text_content.push(' ');
             }
             for technology in &experience.technologies {
                 text_content.push_str(technology);
-                text_content.push_str(" ");
+                text_content.push(' ');
             }
         }
 
         for education in &self.education {
             text_content.push_str(&education.degree);
-            text_content.push_str(" ");
+            text_content.push(' ');
             text_content.push_str(&education.field_of_study);
-            text_content.push_str(" ");
+            text_content.push(' ');
             text_content.push_str(&education.description);
-            text_content.push_str(" ");
+            text_content.push(' ');
             for course in &education.courses {
                 text_content.push_str(course);
-                text_content.push_str(" ");
+                text_content.push(' ');
             }
         }
 
         for skill in &self.skills.technical {
             text_content.push_str(&skill.name);
-            text_content.push_str(" ");
+            text_content.push(' ');
         }
 
         for skill in &self.skills.soft {
             text_content.push_str(&skill.name);
-            text_content.push_str(" ");
+            text_content.push(' ');
         }
 
         for skill in &self.skills.languages {
             text_content.push_str(&skill.name);
-            text_content.push_str(" ");
+            text_content.push(' ');
         }
 
         for skill in &self.skills.tools {
             text_content.push_str(&skill.name);
-            text_content.push_str(" ");
+            text_content.push(' ');
         }
 
         for project in &self.projects {
             text_content.push_str(&project.name);
-            text_content.push_str(" ");
+            text_content.push(' ');
             text_content.push_str(&project.description);
-            text_content.push_str(" ");
+            text_content.push(' ');
             for technology in &project.technologies {
                 text_content.push_str(technology);
-                text_content.push_str(" ");
+                text_content.push(' ');
             }
         }
 
