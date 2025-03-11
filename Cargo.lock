@@ -10,6 +10,7 @@ dependencies = [
  "clap",
  "mockall",
  "pretty_assertions",
+ "regex",
  "rstest",
  "serde",
  "serde_json",

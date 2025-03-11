@@ -1,4 +1,5 @@
 use chrono::{DateTime, NaiveDate, Utc};
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -41,31 +42,212 @@ impl Resume {
     #[allow(unused_mut, clippy::let_and_return)]
     pub fn count_keywords(&self) -> HashMap<String, usize> {
         let mut keywords_count = HashMap::new();
+        let mut text_content = String::new();
 
-        // Think of an algorithm
+        text_content.push_str(&self.profile.summary);
+        text_content.push_str(&self.profile.title);
+        text_content.push_str(&self.profile.name);
+
+        for experience in &self.experiences {
+            text_content.push_str(&experience.title);
+            text_content.push_str(&experience.description);
+            for achievement in &experience.achievements {
+                text_content.push_str(achievement);
+            }
+            for technology in &experience.technologies {
+                text_content.push_str(technology);
+            }
+        }
+
+        for education in &self.education {
+            text_content.push_str(&education.degree);
+            text_content.push_str(&education.field_of_study);
+            text_content.push_str(&education.description);
+            for course in &education.courses {
+                text_content.push_str(course);
+            }
+        }
+
+        for skill in &self.skills.technical {
+            text_content.push_str(&skill.name);
+        }
+
+        for skill in &self.skills.soft {
+            text_content.push_str(&skill.name);
+        }
+
+        for skill in &self.skills.languages {
+            text_content.push_str(&skill.name);
+        }
+
+        for skill in &self.skills.tools {
+            text_content.push_str(&skill.name);
+        }
+
+        for project in &self.projects {
+            text_content.push_str(&project.name);
+            text_content.push_str(&project.description);
+            for technology in &project.technologies {
+                text_content.push_str(technology);
+            }
+        }
+
+        let text_content = text_content.to_lowercase();
+
+        let re = Regex::new(r"\b[a-zA-Z0-9-]+\b").unwrap();
+        for word in re.find_iter(&text_content) {
+            let word = word.as_str().to_string();
+            if !Self::is_common_word(&word) {
+                let normalized = Self::normalize_keyword(&word);
+                *keywords_count.entry(normalized).or_insert(0) += 1;
+            }
+        }
 
         keywords_count
     }
 
-    #[allow(unused_variables)]
-    pub fn contains_keyword(&self, keyword: &str) -> bool {
-        // Think of an algorithm
+    fn is_common_word(word: &str) -> bool {
+        let stopwords = [
+            "the", "and", "in", "of", "on", "with", "for", "to", "a", "an", "at", "by", "is",
+            "this", "that", "it", "as", "or", "be", "are", "was", "were", "not",
+        ];
+        stopwords.contains(&word)
+    }
 
-        false
+    pub fn contains_keyword(&self, keyword: &str) -> bool {
+        let normalized_keyword = Self::normalize_keyword(keyword);
+        let keywords = self.count_keywords();
+        keywords.contains_key(&normalized_keyword)
     }
 
     pub fn validate(&self) -> Result<(), String> {
         if self.profile.name.is_empty() {
             return Err("Name is required".to_string());
         }
-
         if self.profile.email.is_empty() {
             return Err("Email is required".to_string());
         }
 
-        // Could add more validation here
+        if !self.profile.email.contains('@') {
+            return Err("Invalid email format".to_string());
+        }
+
+        for exp in &self.experiences {
+            if let (Some(start), Some(end)) = (exp.start_date, exp.end_date) {
+                if end < start {
+                    return Err(format!(
+                        "Invalid dates for experience at {}: end date before start date",
+                        exp.company
+                    ));
+                }
+            }
+        }
+
+        for edu in &self.education {
+            if let (Some(start), Some(end)) = (edu.start_date, edu.end_date) {
+                if end < start {
+                    return Err(format!(
+                        "Invalid dates for education at {}: end date before start date",
+                        edu.institution
+                    ));
+                }
+            }
+            if let Some(gpa) = edu.gpa {
+                if !(0.0..=4.0).contains(&gpa) {
+                    return Err(format!(
+                        "Invalid GPA for {}: must be between 0.0 and 4.0",
+                        edu.institution
+                    ));
+                }
+            }
+        }
+
+        if !self.profile.linkedin.is_empty() && !self.profile.linkedin.starts_with("https://") {
+            return Err("LinkedIn URL must start with https://".to_string());
+        }
+        if !self.profile.github.is_empty() && !self.profile.github.starts_with("https://") {
+            return Err("GitHub URL must start with https://".to_string());
+        }
+
+        if self.skills.technical.is_empty() {
+            return Err("At least one technical skill is required".to_string());
+        }
 
         Ok(())
+    }
+
+    fn get_tech_acronyms() -> HashMap<&'static str, &'static str> {
+        HashMap::from([
+            // Cloud & Infrastructure
+            ("AWS", "Amazon Web Services"),
+            ("GCP", "Google Cloud Platform"),
+            ("Azure", "Microsoft Azure"),
+            ("IaaS", "Infrastructure as a Service"),
+            ("PaaS", "Platform as a Service"),
+            ("SaaS", "Software as a Service"),
+            ("CDN", "Content Delivery Network"),
+            ("DNS", "Domain Name System"),
+            // Programming & Software Development
+            ("API", "Application Programming Interface"),
+            ("SDK", "Software Development Kit"),
+            ("CLI", "Command Line Interface"),
+            ("GUI", "Graphical User Interface"),
+            ("OOP", "Object-Oriented Programming"),
+            ("FP", "Functional Programming"),
+            ("CI/CD", "Continuous Integration / Continuous Deployment"),
+            ("MVC", "Model-View-Controller"),
+            ("TDD", "Test-Driven Development"),
+            ("ORM", "Object-Relational Mapping"),
+            // Data Science & AI
+            ("ML", "Machine Learning"),
+            ("AI", "Artificial Intelligence"),
+            ("NLP", "Natural Language Processing"),
+            ("CV", "Computer Vision"),
+            ("DL", "Deep Learning"),
+            ("RNN", "Recurrent Neural Network"),
+            ("CNN", "Convolutional Neural Network"),
+            ("LSTM", "Long Short-Term Memory"),
+            ("GAN", "Generative Adversarial Network"),
+            ("ETL", "Extract, Transform, Load"),
+            // Databases & Storage
+            ("SQL", "Structured Query Language"),
+            ("NoSQL", "Not Only SQL"),
+            ("RDBMS", "Relational Database Management System"),
+            ("ACID", "Atomicity, Consistency, Isolation, Durability"),
+            ("OLTP", "Online Transaction Processing"),
+            ("OLAP", "Online Analytical Processing"),
+            // Networking & Security
+            (
+                "TCP/IP",
+                "Transmission Control Protocol / Internet Protocol",
+            ),
+            ("HTTP", "HyperText Transfer Protocol"),
+            ("HTTPS", "HyperText Transfer Protocol Secure"),
+            ("SSH", "Secure Shell"),
+            ("SSL", "Secure Sockets Layer"),
+            ("TLS", "Transport Layer Security"),
+            ("VPN", "Virtual Private Network"),
+            ("DDoS", "Distributed Denial of Service"),
+            // DevOps & Tools
+            ("K8s", "Kubernetes"),
+            ("IaC", "Infrastructure as Code"),
+            ("BPM", "Business Process Management"),
+            ("VM", "Virtual Machine"),
+            ("VCS", "Version Control System"),
+            (
+                "Git",
+                "Version control system (not an acronym but widely used)",
+            ),
+        ])
+    }
+
+    fn normalize_keyword(word: &str) -> String {
+        let word = word.to_lowercase();
+        Self::get_tech_acronyms()
+            .iter()
+            .find(|(k, _)| k.to_lowercase() == word)
+            .map(|(_, v)| v.to_string())
+            .unwrap_or(word)
     }
 }
 
