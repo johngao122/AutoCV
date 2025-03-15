@@ -274,7 +274,7 @@ impl Resume {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Location {
     pub city: String,
     pub country: String,
@@ -291,15 +291,6 @@ pub struct Profile {
     pub github: String,
     pub website: String,
     pub summary: String,
-}
-
-impl Default for Location {
-    fn default() -> Self {
-        Self {
-            city: String::new(),
-            country: String::new(),
-        }
-    }
 }
 
 impl Default for Profile {

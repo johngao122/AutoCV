@@ -2,7 +2,7 @@ use crate::resume::model::Resume;
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct OptimizationResult {
     pub score: u8,
     pub missing_keywords: Vec<String>,
@@ -12,23 +12,16 @@ pub struct OptimizationResult {
     pub section_improvements: HashMap<String, Vec<String>>,
 }
 
-impl Default for OptimizationResult {
-    fn default() -> Self {
-        Self {
-            score: 0,
-            missing_keywords: Vec::new(),
-            matching_keywords: HashMap::new(),
-            overused_keywords: Vec::new(),
-            suggestions: Vec::new(),
-            section_improvements: HashMap::new(),
-        }
-    }
-}
-
 pub struct ResumeOptimizer {
     industry_keywords: HashMap<String, HashSet<String>>,
     action_verbs: HashSet<String>,
     weak_terms: HashSet<String>,
+}
+
+impl Default for ResumeOptimizer {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ResumeOptimizer {
@@ -161,9 +154,9 @@ impl ResumeOptimizer {
 
         let resume_keywords = resume.count_keywords();
         let mut matching_keywords = HashMap::new();
-        for (keyword, _) in &job_keywords {
+        for keyword in job_keywords.keys() {
             if let Some(resume_count) = resume_keywords.get(keyword) {
-                matching_keywords.insert(keyword.clone(), resume_count.clone());
+                matching_keywords.insert(keyword.clone(), *resume_count);
             }
         }
 

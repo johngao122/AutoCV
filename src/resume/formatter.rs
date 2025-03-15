@@ -69,6 +69,12 @@ pub struct ResumeFormatter {
     options: FormattingOptions,
 }
 
+impl Default for ResumeFormatter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ResumeFormatter {
     pub fn new() -> Self {
         let mut formatter = Self {
@@ -146,7 +152,7 @@ impl ResumeFormatter {
         resume: &Resume,
         warnings: &mut Vec<String>,
     ) -> Result<String, String> {
-        let template = self
+        let _template = self
             .templates
             .get(&self.options.template)
             .ok_or_else(|| format!("Template '{}' not found", self.options.template))?;
@@ -204,7 +210,7 @@ impl ResumeFormatter {
                 content.push_str(&format!("- Website: {}\n", resume.profile.website));
             }
 
-            content.push_str("\n");
+            content.push('\n');
         }
 
         if !resume.profile.summary.is_empty() {
@@ -243,7 +249,7 @@ impl ResumeFormatter {
                     for achievement in &exp.achievements {
                         content.push_str(&format!("- {}\n", achievement));
                     }
-                    content.push_str("\n");
+                    content.push('\n');
                 }
 
                 if !exp.technologies.is_empty() {
@@ -285,7 +291,7 @@ impl ResumeFormatter {
                     for course in &edu.courses {
                         content.push_str(&format!("- {}\n", course));
                     }
-                    content.push_str("\n");
+                    content.push('\n');
                 }
 
                 if !edu.achievements.is_empty() {
@@ -293,7 +299,7 @@ impl ResumeFormatter {
                     for achievement in &edu.achievements {
                         content.push_str(&format!("- {}\n", achievement));
                     }
-                    content.push_str("\n");
+                    content.push('\n');
                 }
             }
         }
@@ -354,7 +360,7 @@ impl ResumeFormatter {
                 for lang in &resume.skills.languages {
                     content.push_str(&format!("- {}\n", lang.name));
                 }
-                content.push_str("\n");
+                content.push('\n');
             }
         }
 
@@ -395,7 +401,7 @@ impl ResumeFormatter {
                     for highlight in &project.highlights {
                         content.push_str(&format!("- {}\n", highlight));
                     }
-                    content.push_str("\n");
+                    content.push('\n');
                 }
             }
         }
@@ -422,19 +428,18 @@ impl ResumeFormatter {
         resume: &Resume,
         warnings: &mut Vec<String>,
     ) -> Result<String, String> {
+        let mut plain_text = String::new();
         let markdown = self.format_markdown(resume, warnings)?;
 
-        let mut plain_text = String::new();
-        for line in markdown.lines() {
-            let line = line.trim_start_matches('#').trim_start();
+        let re = regex::Regex::new(r"\[(.*?)\]\((.*?)\)").unwrap();
 
+        for line in markdown.lines() {
             let line = line
+                .replace("#", "")
                 .replace("**", "")
-                .replace("__", "")
                 .replace("*", "")
                 .replace("_", "");
 
-            let re = regex::Regex::new(r"\[(.*?)\]\((.*?)\)").unwrap();
             let line = re.replace_all(&line, "$1 ($2)").to_string();
 
             plain_text.push_str(line.as_str());
@@ -444,7 +449,7 @@ impl ResumeFormatter {
         Ok(plain_text)
     }
 
-    fn format_json(&self, resume: &Resume, _warnings: &mut Vec<String>) -> Result<String, String> {
+    fn format_json(&self, resume: &Resume, _warnings: &mut [String]) -> Result<String, String> {
         serde_json::to_string_pretty(resume).map_err(|e| format!("Failed to format as JSON: {}", e))
     }
 
@@ -501,10 +506,9 @@ impl ResumeFormatter {
             warnings.push("Mismatched bold markers in content".to_string());
         }
         for _ in 0..(strong_count / 2) {
-            content =
-                content
-                    .replacen("<strong>", "<strong>", 1)
-                    .replacen("<strong>", "</strong>", 1);
+            content = content
+                .replacen("**", "<strong>", 1)
+                .replacen("**", "</strong>", 1);
         }
 
         content = content.replace("*", "<em>").replace("_", "<em>");
@@ -514,8 +518,8 @@ impl ResumeFormatter {
         }
         for _ in 0..(em_count / 2) {
             content = content
-                .replacen("<em>", "<em>", 1)
-                .replacen("<em>", "</em>", 1);
+                .replacen("<em>", "</em>", 2)
+                .replacen("</em>", "<em>", 1);
         }
 
         let link_re = regex::Regex::new(r"\[(.*?)\]\((.*?)\)").unwrap();
