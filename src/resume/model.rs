@@ -274,56 +274,48 @@ impl Resume {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Location {
+    pub city: String,
+    pub country: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Profile {
     pub name: String,
-    pub email: String,
-    #[serde(default)]
-    pub phone: String,
-    #[serde(default)]
-    pub location: String,
-    #[serde(default)]
-    pub website: String,
-    #[serde(default)]
-    pub linkedin: String,
-    #[serde(default)]
-    pub github: String,
-    #[serde(default)]
-    pub summary: String,
-    #[serde(default)]
     pub title: String,
-    #[serde(default)]
-    pub additional_links: HashMap<String, String>,
+    pub email: String,
+    pub phone: String,
+    pub location: Location,
+    pub linkedin: String,
+    pub github: String,
+    pub website: String,
+    pub summary: String,
 }
+
+impl Default for Location {
+    fn default() -> Self {
+        Self {
+            city: String::new(),
+            country: String::new(),
+        }
+    }
+}
+
 impl Default for Profile {
     fn default() -> Self {
         Self {
             name: "".to_string(),
             email: "".to_string(),
             phone: "".to_string(),
-            location: "".to_string(),
-            website: "".to_string(),
+            location: Location::default(),
             linkedin: "".to_string(),
             github: "".to_string(),
+            website: "".to_string(),
             summary: "".to_string(),
             title: "".to_string(),
-            additional_links: HashMap::new(),
         }
     }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct Location {
-    #[serde(default)]
-    pub address: String,
-    #[serde(default)]
-    pub city: String,
-    #[serde(default)]
-    pub region: String,
-    #[serde(default)]
-    pub country: String,
-    #[serde(default)]
-    pub postal_code: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
